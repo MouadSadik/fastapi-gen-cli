@@ -1,0 +1,13 @@
+README.md
+pyproject.toml
+fastapi_gen/__init__.py
+fastapi_gen/cli.py
+fastapi_gen/config.py
+fastapi_gen/generator.py
+fastapi_gen/templates.py
+fastapi_gen.egg-info/PKG-INFO
+fastapi_gen.egg-info/SOURCES.txt
+fastapi_gen.egg-info/dependency_links.txt
+fastapi_gen.egg-info/entry_points.txt
+fastapi_gen.egg-info/requires.txt
+fastapi_gen.egg-info/top_level.txt

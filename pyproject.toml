@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fastapi-gen"
+version = "0.1.0"
+description = "⚡ Scaffold production-ready FastAPI projects instantly"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "typer>=0.12",
+  "rich>=13",
+]
+
+[project.scripts]
+fastapi-gen = "fastapi_gen.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["fastapi_gen*"]
