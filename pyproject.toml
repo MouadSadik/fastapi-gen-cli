@@ -20,3 +20,11 @@ fastapi-gen = "fastapi_gen.cli:app"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["fastapi_gen*"]
+
+authors = [{name = "Mouad Sadik"}]
+keywords = ["fastapi", "cli", "generator", "backend", "python"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
