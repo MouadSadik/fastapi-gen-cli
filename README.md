@@ -80,3 +80,5 @@ my-app/
 | `--docker` | Dockerfile + docker-compose |
 | `--tests` | pytest + httpx async test suite |
 | `-y / --no-interactive` | Skip all prompts |
+
+## By Mouad Sadik
