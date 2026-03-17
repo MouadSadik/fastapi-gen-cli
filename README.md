@@ -1,10 +1,10 @@
 # FastAPI Gen ⚡
 
-[![GitHub Stars](https://img.shields.io/github/stars/mouadSadik/fastapi-gen-cli?style=social)](https://github.com/mouadSadik/fastapi-gen-cli/stargazers)
+[![GitHub Stars](https://img.shields.io/github/stars/MouadSadik/fastapi-gen-cli?style=social)](https://github.com/MouadSadik/fastapi-gen-cli/stargazers)
 ![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
 ![PyPI](https://img.shields.io/pypi/v/fastapi-gen-newone)
 ![Python](https://img.shields.io/pypi/pyversions/fastapi-gen-newone)
-![Downloads](https://img.shields.io/pypi/project/fastapi-gen-newone)
+![Downloads](https://img.shields.io/pypi/dm/fastapi-gen-newone)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 **Create production-ready FastAPI projects in seconds**
