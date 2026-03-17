@@ -31,20 +31,18 @@ Scaffold a production-ready FastAPI app in seconds
 ? Project name: my-app
 ? Include SQLAlchemy (database models): Yes
 ? Include Alembic (database migrations): Yes
-? Include JWT Auth (login/register routes): Yes
 ? Include Docker (Dockerfile + docker-compose): Yes
 ? Include Pytest (test suite): Yes
 ```
 
 ### With flags (non-interactive)
 ```bash
-fastapi-gen my-app --db --auth --docker --alembic --tests
+fastapi-gen my-app --db --docker --alembic --tests
 ```
 
 ### Skip prompts entirely
 ```bash
 fastapi-gen my-app -y            # bare project, no extras
-fastapi-gen my-app -y --auth     # just auth, no prompts
 ```
 
 ## Generated structure
@@ -80,3 +78,7 @@ my-app/
 | `--docker` | Dockerfile + docker-compose |
 | `--tests` | pytest + httpx async test suite |
 | `-y / --no-interactive` | Skip all prompts |
+
+---
+
+## By Mouad Sadik
