@@ -3,27 +3,23 @@
 > Create production-ready FastAPI projects in seconds.
 
 ## Install
-
 ```bash
-pip install fastapi-gen
+pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ fastapi-gen-newone
 ```
 
 Or run directly with `pipx`:
-
 ```bash
-pipx run fastapi-gen my-app
+pipx run fastapi-gen-newone my-app
 ```
 
 ## Usage
 
 ### Interactive (recommended)
-
 ```bash
 fastapi-gen my-app
 ```
 
 You'll be prompted to select features:
-
 ```
 ⚡ FastAPI Project Generator
 Scaffold a production-ready FastAPI app in seconds
@@ -37,20 +33,17 @@ Scaffold a production-ready FastAPI app in seconds
 ```
 
 ### With flags (non-interactive)
-
 ```bash
 fastapi-gen my-app --db --auth --docker --alembic --tests
 ```
 
 ### Skip prompts entirely
-
 ```bash
 fastapi-gen my-app -y            # bare project, no extras
 fastapi-gen my-app -y --auth     # just auth, no prompts
 ```
 
 ## Generated structure
-
 ```
 my-app/
 ├── src/
