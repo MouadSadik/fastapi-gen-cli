@@ -56,13 +56,11 @@ my-app/
 ├── src/
 │   ├── main.py            ← FastAPI app entrypoint
 │   ├── core/
-│   │   ├── config.py      ← pydantic-settings
-│   │   └── security.py    ← JWT (if --auth)
+│   │   └── config.py    ← pydantic-settings
 │   ├── api/v1/
 │   │   ├── router.py
 │   │   └── endpoints/
-│   │       ├── health.py
-│   │       └── auth.py    ← (if --auth)
+│   │       └── health.py   
 │   ├── db/                ← (if --db)
 │   │   └── session.py
 │   ├── models/            ← (if --db)
@@ -82,7 +80,6 @@ my-app/
 |------|-------------|
 | `--db` | SQLAlchemy async ORM + aiosqlite |
 | `--alembic` | Alembic migration setup |
-| `--auth` | JWT login/register endpoints |
 | `--docker` | Dockerfile + docker-compose |
 | `--tests` | pytest + httpx async test suite |
 | `-y / --no-interactive` | Skip all prompts |
