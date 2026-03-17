@@ -1,6 +1,15 @@
-# fastapi-gen ⚡
+# FastAPI Gen ⚡
 
-> Create production-ready FastAPI projects in seconds.
+[![GitHub Stars](https://img.shields.io/github/stars/mouadsadik/fastapi-gen?style=social)](https://github.com/mouadsadik/fastapi-gen)
+![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
+![PyPI](https://img.shields.io/pypi/v/fastapi-gen-newone)
+![Python](https://img.shields.io/pypi/pyversions/fastapi-gen-newone)
+![Downloads](https://img.shields.io/pypi/dm/fastapi-gen-newone)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+**Create production-ready FastAPI projects in seconds**
+
+*Skip the boilerplate. Ship faster.*
 
 ## Install
 ```bash
