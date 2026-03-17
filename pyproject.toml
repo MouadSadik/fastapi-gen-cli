@@ -21,8 +21,6 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-[project.optional-dependencies]
-dev = ["pytest"]
 
 [project.scripts]
 fastapi-gen = "fastapi_gen.cli:app"
