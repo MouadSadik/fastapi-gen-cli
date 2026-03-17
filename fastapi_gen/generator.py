@@ -25,14 +25,14 @@ def generate_project(config: ProjectConfig, console: Console):
     files: dict[str, str] = {}
 
     # --- Core app files ---
-    files["src/main.py"]                   = templates.main_py(config)
-    files["src/core/__init__.py"]          = ""
-    files["src/core/config.py"]            = templates.core_config(config)
-    files["src/api/__init__.py"]           = ""
-    files["src/api/v1/__init__.py"]        = ""
-    files["src/api/v1/router.py"]          = templates.api_router(config)
+    files["src/main.py"]                      = templates.main_py(config)
+    files["src/core/__init__.py"]             = ""
+    files["src/core/config.py"]               = templates.core_config(config)
+    files["src/api/__init__.py"]              = ""
+    files["src/api/v1/__init__.py"]           = ""
+    files["src/api/v1/router.py"]             = templates.api_router(config)
     files["src/api/v1/endpoints/__init__.py"] = ""
-    files["src/api/v1/endpoints/health.py"] = templates.health_endpoint()
+    files["src/api/v1/endpoints/health.py"]   = templates.health_endpoint()
 
     # --- DB / models ---
     if config.db:
@@ -42,14 +42,6 @@ def generate_project(config: ProjectConfig, console: Console):
         files["src/models/__init__.py"]    = ""
         files["src/models/base.py"]        = templates.model_base()
         files["src/schemas/__init__.py"]   = ""
-
-    # --- Auth ---
-    if config.auth:
-        files["src/core/security.py"]      = templates.security(config)
-        files["src/api/v1/endpoints/auth.py"] = templates.auth_endpoint(config)
-        if config.db:
-            files["src/models/user.py"]    = templates.user_model()
-            files["src/schemas/user.py"]   = templates.user_schema()
 
     # --- Alembic ---
     if config.alembic:
@@ -107,7 +99,7 @@ def generate_project(config: ProjectConfig, console: Console):
     else:
         console.print(f"  [cyan]uvicorn src.main:app --reload[/cyan]")
     console.print()
-    console.print(f"  Docs → [link]http://localhost:8000/docs[/link]")
+    console.print(f"  Docs -> http://localhost:8000/docs")
     console.print()
 
 
@@ -116,30 +108,22 @@ def _build_tree(config: ProjectConfig) -> Tree:
 
     src = tree.add("[bold yellow]src/[/bold yellow]")
     src.add("[dim]__init__.py[/dim]")
-    src.add("[green]main.py[/green]  [dim]← app entrypoint[/dim]")
+    src.add("[green]main.py[/green]  [dim]<- app entrypoint[/dim]")
 
     core = src.add("[bold yellow]core/[/bold yellow]")
-    core.add("config.py  [dim]← settings[/dim]")
-    if config.auth:
-        core.add("security.py  [dim]← JWT utils[/dim]")
+    core.add("config.py  [dim]<- settings[/dim]")
 
     api = src.add("[bold yellow]api/v1/[/bold yellow]")
     api.add("router.py")
     ep = api.add("[bold yellow]endpoints/[/bold yellow]")
     ep.add("health.py")
-    if config.auth:
-        ep.add("auth.py  [dim]← login/register[/dim]")
 
     if config.db:
         db = src.add("[bold yellow]db/[/bold yellow]")
-        db.add("session.py  [dim]← DB engine[/dim]")
+        db.add("session.py  [dim]<- DB engine[/dim]")
         db.add("base.py")
-        src.add("[bold yellow]models/[/bold yellow]").add(
-            "user.py  [dim]← User model[/dim]" if config.auth else "[dim](add models here)[/dim]"
-        )
-        src.add("[bold yellow]schemas/[/bold yellow]").add(
-            "user.py  [dim]← Pydantic schemas[/dim]" if config.auth else "[dim](add schemas here)[/dim]"
-        )
+        src.add("[bold yellow]models/[/bold yellow]").add("[dim](add models here)[/dim]")
+        src.add("[bold yellow]schemas/[/bold yellow]").add("[dim](add schemas here)[/dim]")
 
     if config.alembic:
         alembic = tree.add("[bold yellow]alembic/[/bold yellow]")
@@ -157,7 +141,7 @@ def _build_tree(config: ProjectConfig) -> Tree:
         tree.add("docker-compose.yml")
         tree.add(".dockerignore")
 
-    tree.add("pyproject.toml  [dim]← deps & metadata[/dim]")
+    tree.add("pyproject.toml  [dim]<- deps & metadata[/dim]")
     tree.add(".env.example")
     tree.add(".gitignore")
     tree.add("README.md")

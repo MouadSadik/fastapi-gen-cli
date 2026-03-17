@@ -4,7 +4,7 @@ All file content templates for generated projects.
 from .config import ProjectConfig
 
 
-# ── Core ──────────────────────────────────────────────────────────────────────
+# -- Core ---------------------------------------------------------------------
 
 def main_py(c: ProjectConfig) -> str:
     router_import = "from src.api.v1.router import router as api_router"
@@ -55,10 +55,6 @@ async def root():
 
 def core_config(c: ProjectConfig) -> str:
     db_field = '\n    DATABASE_URL: str = "sqlite+aiosqlite:///./dev.db"' if c.db else ""
-    jwt_fields = """
-    SECRET_KEY: str = "change-me-in-production"
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30""" if c.auth else ""
     return f'''from pydantic_settings import BaseSettings
 from typing import List
 
@@ -66,7 +62,7 @@ from typing import List
 class Settings(BaseSettings):
     PROJECT_NAME: str = "{c.name}"
     VERSION: str = "0.1.0"
-    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8000"]{db_field}{jwt_fields}
+    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8000"]{db_field}
 
     class Config:
         env_file = ".env"
@@ -77,13 +73,11 @@ settings = Settings()
 
 
 def api_router(c: ProjectConfig) -> str:
-    auth_import = "\nfrom src.api.v1.endpoints.auth import router as auth_router" if c.auth else ""
-    auth_include = '\nrouter.include_router(auth_router, prefix="/auth", tags=["auth"])' if c.auth else ""
-    return f'''from fastapi import APIRouter
-from src.api.v1.endpoints.health import router as health_router{auth_import}
+    return '''from fastapi import APIRouter
+from src.api.v1.endpoints.health import router as health_router
 
 router = APIRouter()
-router.include_router(health_router, prefix="/health", tags=["health"]){auth_include}
+router.include_router(health_router, prefix="/health", tags=["health"])
 '''
 
 
@@ -99,7 +93,7 @@ async def health_check():
 '''
 
 
-# ── Database ──────────────────────────────────────────────────────────────────
+# -- Database -----------------------------------------------------------------
 
 def db_session(c: ProjectConfig) -> str:
     return '''from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
@@ -124,9 +118,6 @@ __all__ = ["Base"]
 
 def model_base() -> str:
     return '''from sqlalchemy.orm import DeclarativeBase
-import uuid
-from sqlalchemy import Column, String
-from sqlalchemy.dialects.sqlite import TEXT
 
 
 class Base(DeclarativeBase):
@@ -134,99 +125,7 @@ class Base(DeclarativeBase):
 '''
 
 
-# ── Auth ──────────────────────────────────────────────────────────────────────
-
-def security(c: ProjectConfig) -> str:
-    return '''from datetime import datetime, timedelta
-from typing import Optional
-from jose import jwt, JWTError
-from passlib.context import CryptContext
-from src.core.config import settings
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
-
-
-def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
-
-
-def create_access_token(subject: str, expires_delta: Optional[timedelta] = None) -> str:
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
-    return jwt.encode({"sub": subject, "exp": expire}, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
-
-
-def decode_token(token: str) -> Optional[str]:
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        return payload.get("sub")
-    except JWTError:
-        return None
-'''
-
-
-def auth_endpoint(c: ProjectConfig) -> str:
-    db_dep = "from src.db.session import get_db\nfrom sqlalchemy.ext.asyncio import AsyncSession\n" if c.db else ""
-    return f'''from fastapi import APIRouter, HTTPException, status{"," if c.db else ""}{"Depends" if c.db else ""}
-from src.core.security import hash_password, verify_password, create_access_token
-{db_dep}
-router = APIRouter()
-
-
-@router.post("/register", status_code=status.HTTP_201_CREATED)
-async def register(email: str, password: str):
-    # TODO: persist user to DB
-    hashed = hash_password(password)
-    return {{"email": email, "message": "User created"}}
-
-
-@router.post("/login")
-async def login(email: str, password: str):
-    # TODO: look up user from DB and verify
-    # Example: verify_password(password, user.hashed_password)
-    token = create_access_token(subject=email)
-    return {{"access_token": token, "token_type": "bearer"}}
-'''
-
-
-def user_model() -> str:
-    return '''from sqlalchemy import Column, String, Boolean
-from src.models.base import Base
-import uuid
-
-
-class User(Base):
-    __tablename__ = "users"
-
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    email = Column(String, unique=True, index=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
-    is_active = Column(Boolean, default=True)
-'''
-
-
-def user_schema() -> str:
-    return '''from pydantic import BaseModel, EmailStr
-
-
-class UserCreate(BaseModel):
-    email: EmailStr
-    password: str
-
-
-class UserRead(BaseModel):
-    id: str
-    email: EmailStr
-    is_active: bool
-
-    model_config = {"from_attributes": True}
-'''
-
-
-# ── Alembic ───────────────────────────────────────────────────────────────────
+# -- Alembic ------------------------------------------------------------------
 
 def alembic_ini(c: ProjectConfig) -> str:
     return f'''[alembic]
@@ -281,13 +180,21 @@ target_metadata = Base.metadata
 
 
 def run_migrations_offline():
-    context.configure(url=config.get_main_option("sqlalchemy.url"), target_metadata=target_metadata, literal_binds=True)
+    context.configure(
+        url=config.get_main_option("sqlalchemy.url"),
+        target_metadata=target_metadata,
+        literal_binds=True,
+    )
     with context.begin_transaction():
         context.run_migrations()
 
 
 def run_migrations_online():
-    connectable = engine_from_config(config.get_section(config.config_ini_section), prefix="sqlalchemy.", poolclass=pool.NullPool)
+    connectable = engine_from_config(
+        config.get_section(config.config_ini_section),
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+    )
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
         with context.begin_transaction():
@@ -301,7 +208,7 @@ else:
 '''
 
 
-# ── Tests ─────────────────────────────────────────────────────────────────────
+# -- Tests --------------------------------------------------------------------
 
 def conftest(c: ProjectConfig) -> str:
     return '''import pytest
@@ -328,7 +235,7 @@ async def test_health(client):
 '''
 
 
-# ── Docker ────────────────────────────────────────────────────────────────────
+# -- Docker -------------------------------------------------------------------
 
 def dockerfile(c: ProjectConfig) -> str:
     return '''FROM python:3.12-slim
@@ -393,24 +300,26 @@ build
 '''
 
 
-# ── Project root ──────────────────────────────────────────────────────────────
+# -- Project root -------------------------------------------------------------
 
 def pyproject_toml(c: ProjectConfig) -> str:
-    extras = ['fastapi[standard]', 'pydantic-settings', 'uvicorn[standard]']
+    extras = [
+        "fastapi[standard]",
+        "pydantic-settings",
+        "uvicorn[standard]",
+    ]
     if c.db:
-        extras += ['sqlalchemy[asyncio]', 'aiosqlite']
-    if c.auth:
-        extras += ['python-jose[cryptography]', 'passlib[bcrypt]']
+        extras += ["sqlalchemy[asyncio]", "aiosqlite"]
     if c.alembic:
-        extras.append('alembic')
+        extras.append("alembic")
     if c.tests:
-        extras += ['pytest', 'pytest-anyio', 'httpx']
+        extras += ["pytest", "pytest-anyio", "httpx"]
 
     deps = "\n".join(f'  "{dep}",' for dep in extras)
 
     return f'''[build-system]
-requires = ["setuptools>=68"]
-build-backend = "setuptools.backends.legacy:build"
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "{c.name}"
@@ -434,11 +343,6 @@ def env_example(c: ProjectConfig) -> str:
     lines = ['PROJECT_NAME="My FastAPI App"']
     if c.db:
         lines.append('DATABASE_URL="sqlite+aiosqlite:///./dev.db"')
-    if c.auth:
-        lines += [
-            'SECRET_KEY="super-secret-change-me"',
-            'ACCESS_TOKEN_EXPIRE_MINUTES=30',
-        ]
     return "\n".join(lines) + "\n"
 
 
@@ -461,19 +365,20 @@ build/
 
 
 def readme(c: ProjectConfig) -> str:
-    features = []
-    if c.db: features.append("- 🗄️ SQLAlchemy async ORM")
-    if c.alembic: features.append("- 🔄 Alembic migrations")
-    if c.auth: features.append("- 🔒 JWT Authentication")
-    if c.docker: features.append("- 🐳 Docker + docker-compose")
-    if c.tests: features.append("- 🧪 Pytest async test suite")
-    feature_block = "\n".join(features) if features else "- ⚡ FastAPI with async support"
+    features = ["- FastAPI with async support"]
+    if c.db:
+        features.append("- SQLAlchemy async ORM")
+    if c.alembic:
+        features.append("- Alembic migrations")
+    if c.docker:
+        features.append("- Docker + docker-compose")
+    if c.tests:
+        features.append("- Pytest async test suite")
 
+    feature_block = "\n".join(features)
     run_cmd = "docker-compose up --build" if c.docker else "uvicorn src.main:app --reload"
 
     return f'''# {c.name}
-
-> Generated with [fastapi-gen](https://github.com/your-org/fastapi-gen) ⚡
 
 ## Features
 
@@ -483,25 +388,25 @@ def readme(c: ProjectConfig) -> str:
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\\Scripts\\activate
+source .venv/bin/activate
 pip install -e .
 cp .env.example .env
 {"alembic upgrade head" + chr(10) if c.alembic else ""}{run_cmd}
 ```
 
-Open **http://localhost:8000/docs** for the interactive API docs.
+Open http://localhost:8000/docs for the interactive API docs.
 
 ## Project structure
 
 ```
 src/
-  main.py          # App entrypoint
+  main.py            # App entrypoint
   core/
-    config.py      # Settings (pydantic-settings){"" if not c.auth else chr(10) + "    security.py    # JWT helpers"}
+    config.py        # Settings (pydantic-settings)
   api/v1/
     router.py
     endpoints/
-      health.py{"" if not c.auth else chr(10) + "      auth.py"}
+      health.py
 {"  db/" + chr(10) + "    session.py" + chr(10) + "  models/" + chr(10) + "  schemas/" if c.db else ""}
 ```
 '''

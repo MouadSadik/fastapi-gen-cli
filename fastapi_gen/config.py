@@ -5,7 +5,6 @@ from dataclasses import dataclass, field
 class ProjectConfig:
     name: str
     db: bool = False
-    auth: bool = False
     docker: bool = False
     alembic: bool = False
     tests: bool = False

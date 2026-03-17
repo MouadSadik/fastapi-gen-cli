@@ -25,7 +25,6 @@ def validate_name(name: str) -> str:
 def create(
     project_name: str = typer.Argument(None, help="Name of the project to create"),
     db: bool = typer.Option(False, "--db", help="Add SQLAlchemy + database support"),
-    auth: bool = typer.Option(False, "--auth", help="Add JWT authentication"),
     docker: bool = typer.Option(False, "--docker", help="Add Dockerfile & docker-compose"),
     alembic: bool = typer.Option(False, "--alembic", help="Add Alembic migrations"),
     tests: bool = typer.Option(False, "--tests", help="Add pytest test suite"),
@@ -62,8 +61,6 @@ def create(
             db = Confirm.ask("  [bold]? Include SQLAlchemy[/bold] (database models)", default=False)
         if db and not alembic:
             alembic = Confirm.ask("  [bold]? Include Alembic[/bold] (database migrations)", default=False)
-        if not auth:
-            auth = Confirm.ask("  [bold]? Include JWT Auth[/bold] (login/register routes)", default=False)
         if not docker:
             docker = Confirm.ask("  [bold]? Include Docker[/bold] (Dockerfile + docker-compose)", default=False)
         if not tests:
@@ -72,7 +69,6 @@ def create(
     config = ProjectConfig(
         name=project_name,
         db=db,
-        auth=auth,
         docker=docker,
         alembic=alembic,
         tests=tests,
