@@ -54,7 +54,7 @@ async def root():
 
 
 def core_config(c: ProjectConfig) -> str:
-    db_field = '\n    DATABASE_URL: str = "sqlite+aiosqlite:///./dev.db"' if c.db else ""
+    db_field = '\n    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/appdb"' if c.db else ""
     return f'''from pydantic_settings import BaseSettings
 from typing import List
 
@@ -128,9 +128,9 @@ class Base(DeclarativeBase):
 # -- Alembic ------------------------------------------------------------------
 
 def alembic_ini(c: ProjectConfig) -> str:
-    return f'''[alembic]
+    return '''[alembic]
 script_location = alembic
-sqlalchemy.url = sqlite:///./dev.db
+sqlalchemy.url = postgresql://postgres:postgres@localhost:5432/appdb
 
 [loggers]
 keys = root,sqlalchemy,alembic
@@ -175,7 +175,7 @@ from src.db.base import Base
 from src.core.config import settings
 
 config = context.config
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.replace("+aiosqlite", ""))
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.replace("+asyncpg", ""))
 target_metadata = Base.metadata
 
 
@@ -254,7 +254,18 @@ CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 
 def docker_compose(c: ProjectConfig) -> str:
-    db_service = """
+    return '''services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+
   postgres:
     image: postgres:16-alpine
     environment:
@@ -268,22 +279,7 @@ def docker_compose(c: ProjectConfig) -> str:
 
 volumes:
   pgdata:
-""" if c.db else ""
-
-    db_depends = "\n    depends_on:\n      - postgres" if c.db else ""
-
-    return f'''version: "3.9"
-
-services:
-  api:
-    build: .
-    ports:
-      - "8000:8000"
-    env_file:
-      - .env
-    volumes:
-      - .:/app{db_depends}
-{db_service}'''
+'''
 
 
 def dockerignore() -> str:
@@ -309,7 +305,7 @@ def pyproject_toml(c: ProjectConfig) -> str:
         "uvicorn[standard]",
     ]
     if c.db:
-        extras += ["sqlalchemy[asyncio]", "aiosqlite"]
+        extras += ["sqlalchemy[asyncio]", "asyncpg"]
     if c.alembic:
         extras.append("alembic")
     if c.tests:
@@ -339,10 +335,10 @@ asyncio_mode = "auto"
 '''
 
 
-def env_example(c: ProjectConfig) -> str:
+def env_file(c: ProjectConfig) -> str:
     lines = ['PROJECT_NAME="My FastAPI App"']
     if c.db:
-        lines.append('DATABASE_URL="sqlite+aiosqlite:///./dev.db"')
+        lines.append('DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/appdb"')
     return "\n".join(lines) + "\n"
 
 
@@ -367,11 +363,11 @@ build/
 def readme(c: ProjectConfig) -> str:
     features = ["- FastAPI with async support"]
     if c.db:
-        features.append("- SQLAlchemy async ORM")
+        features.append("- SQLAlchemy async ORM with PostgreSQL")
     if c.alembic:
         features.append("- Alembic migrations")
     if c.docker:
-        features.append("- Docker + docker-compose")
+        features.append("- Docker + docker-compose with PostgreSQL")
     if c.tests:
         features.append("- Pytest async test suite")
 
@@ -390,7 +386,6 @@ def readme(c: ProjectConfig) -> str:
 python -m venv .venv
 source .venv/bin/activate
 pip install -e .
-cp .env.example .env
 {"alembic upgrade head" + chr(10) if c.alembic else ""}{run_cmd}
 ```
 

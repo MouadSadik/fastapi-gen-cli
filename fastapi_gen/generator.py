@@ -63,7 +63,7 @@ def generate_project(config: ProjectConfig, console: Console):
 
     # --- Project root ---
     files["pyproject.toml"]                = templates.pyproject_toml(config)
-    files[".env.example"]                  = templates.env_example(config)
+    files[".env"]                  = templates.env_file(config)
     files[".gitignore"]                    = templates.gitignore()
     files["README.md"]                     = templates.readme(config)
     files["src/__init__.py"]               = ""
@@ -142,7 +142,7 @@ def _build_tree(config: ProjectConfig) -> Tree:
         tree.add(".dockerignore")
 
     tree.add("pyproject.toml  [dim]<- deps & metadata[/dim]")
-    tree.add(".env.example")
+    tree.add(".env")
     tree.add(".gitignore")
     tree.add("README.md")
     return tree
