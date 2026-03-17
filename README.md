@@ -43,7 +43,6 @@ fastapi-gen my-app --db --docker --alembic --tests
 ### Skip prompts entirely
 ```bash
 fastapi-gen my-app -y            # bare project, no extras
-fastapi-gen my-app -y --auth     # just auth, no prompts
 ```
 
 ## Generated structure
