@@ -4,12 +4,7 @@
 
 ## Install
 ```bash
-pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ fastapi-gen-newone
-```
-
-Or run directly with `pipx`:
-```bash
-pipx run fastapi-gen-newone my-app
+pip install fastapi-gen-newone
 ```
 
 ## Usage
